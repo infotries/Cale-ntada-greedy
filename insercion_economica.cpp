@@ -6,8 +6,8 @@
 
 using namespace std;
 
-vector<int> insercion_mas_barata(const vector<vector<double>>& dist) {
-    int n = dist.size();
+vector<int> insercion_mas_barata(const vector<vector<double>>& distancia) {
+    int n = distancia.size();
     if (n <= 3) {
         vector<int> tour(n);
         for (int i = 0; i < n; ++i) tour[i] = i;
@@ -33,8 +33,8 @@ vector<int> insercion_mas_barata(const vector<vector<double>>& dist) {
         for (int k = 0; k < n; ++k) {
             if (!visited[k]) {
                 for (int c : tour) {
-                    if (dist[k][c] < min_dist_to_T) {
-                        min_dist_to_T = dist[k][c];
+                    if (distancia[k][c] < min_dist_to_T) {
+                        min_dist_to_T = distancia[k][c];
                         best_k = k;
                     }
                 }
@@ -47,7 +47,7 @@ vector<int> insercion_mas_barata(const vector<vector<double>>& dist) {
         for (size_t p = 0; p < tour.size(); ++p) {
             int i = tour[p];
             int j = tour[(p + 1) % tour.size()];
-            double increase = dist[i][best_k] + dist[best_k][j] - dist[i][j];
+            double increase = distancia[i][best_k] + distancia[best_k][j] - distancia[i][j];
 
             if (increase < min_increase) {
                 min_increase = increase;
