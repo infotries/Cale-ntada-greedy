@@ -6,7 +6,7 @@
 
 using namespace std;
 
-vector<int> cheapestInsertionTSP(const vector<vector<double>>& dist) {
+vector<int> insercion_mas_barata(const vector<vector<double>>& dist) {
     int n = dist.size();
     if (n <= 3) {
         vector<int> tour(n);
