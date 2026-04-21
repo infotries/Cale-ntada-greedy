@@ -11,8 +11,9 @@
 using namespace std;
 const int INF = 1000000000;
 
-// Conjunto de candidatos C: ciudades que aun no se han insertado en el subtour.
-//Guardo el indice de los que estan en false en el vector de candidatos 
+//Construye el conjunto de ciudades candidatas a insertar, es decir, las ciudades que todavía no están dentro del subtour
+//int n -> numero total de ciudades
+//const vector<bool>& en_tour , true(significa q la ciudad ya está en el subtour) , false(significa q aún no está)
 vector<int> construir_candidatos(int n, const vector<bool>& en_tour) {
     vector<int> candidatos;
     for (int i = 0; i < n; ++i) {
@@ -22,8 +23,15 @@ vector<int> construir_candidatos(int n, const vector<bool>& en_tour) {
     }
     return candidatos;
 }
+//Este bloque implementa la idea de mantener el conjunto de candidatos C: ciudades aún no introducidas en el tour
+//COSTE -> Recorre n ciudades, Complejidad: O(n)
 
-// Funcion de seleccion: elige la ciudad k con menor d(k, T) = min_{c in T} d(k, c).
+
+
+//Selecciona la ciudad candidata k cuya distancia al subtour actual sea mínima
+//subtour -> contiene las ciudades ya insertadas, en el orden en que forman el tour parcial
+//candidatos -> contiene las ciudades aún no insertadas
+//dist -> matriz de distancias ,dist[i][j] es la distancia entre las ciudades i y j
 int seleccionar_ciudad_mas_cercana_al_subtour(
     const vector<int>& subtour,
     const vector<int>& candidatos,
@@ -47,13 +55,20 @@ int seleccionar_ciudad_mas_cercana_al_subtour(
 
     return mejor_ciudad;
 }
+//Esta es la función de selección greedy principal, entre todas las ciudades no insertadas, elige la “más prometedora” según el criterio del algoritmo
+//COSTE -> Si hay: r candidatos y m ciudades en el subtour entonces el coste es O(r·m)
 
-// Funcion de factibilidad: comprobar que la ciudad no este ya en el subtour.
+
+
+//Comprueba si una ciudad puede insertarse
 bool es_factible_insertar(int ciudad, const vector<bool>& en_tour) {
     return ciudad >= 0 && ciudad < (int)en_tour.size() && !en_tour[ciudad];
 }
+//COSTE -> O(1)
 
-// Devuelve la posicion de insercion que minimiza Delta(i,j) para insertar k entre i y j.
+
+
+//Dada una ciudad k ya elegida, decide entre qué dos ciudades consecutivas del subtour conviene insertarla para que el aumento del coste sea mínimo
 int mejor_posicion_de_insercion(
     const vector<int>& subtour,
     int ciudad_k,
@@ -77,17 +92,30 @@ int mejor_posicion_de_insercion(
 
     return mejor_posicion;
 }
+//Esta función implementa la segunda decisión greedy: ya elegida la ciudad, ahora se decide dónde insertarla con el menor daño posible sobre el coste total
+//COSTE -> Si el subtour tiene tamaño m, el coste es O(m)
 
-// Funcion objetivo: coste total del tour.
+
+
+//Devuelve el coste total del tour
 int funcion_objetivo(const vector<int>& tour, const vector<vector<int>>& dist) {
     return compute_tour_cost(tour, dist);
 }
+//COSTE -> Depende de compute_tour_cost, pero normalmente sería O(n)
 
-// Funcion de solucion: comprueba si ya tenemos una solucion completa.
+
+
+//Comprueba si el subtour ya contiene todas las ciudades
 bool es_solucion_completa(const vector<int>& subtour, int total_ciudades) {
     return (int)subtour.size() == total_ciudades;
 }
+//Si el tamaño del subtour coincide con el número total de ciudades, entonces:ya no quedan candidatos y el tour está completo
+//COSTE -> O(1)
 
+
+
+//Construye un tour del TSP con la heurística de inserción más económica: empieza con 3 ciudades aleatorias y va añadiendo, en cada paso,
+//la ciudad no visitada más cercana al subtour en la posición que menos aumenta el coste.
 pair<vector<int>, int> heuristic_economic_insertion(const vector<vector<int>>& dist) {
     int n = (int)dist.size();
     vector<int> subtour;
@@ -139,6 +167,10 @@ pair<vector<int>, int> heuristic_economic_insertion(const vector<vector<int>>& d
     int coste = funcion_objetivo(subtour, dist);
     return {subtour, coste};
 }
+//COSTE -> La complejidad temporal de la heurística de inserción más económica implementada es O(n^3)
+
+
+
 
 int main(int argc, char* argv[]) {
     // g++ insercion_economica.cpp data_loader.cpp plot_tour.cpp -o insercion_economica.bin -O3 && ./insercion_economica.bin ./data/berlin52.tsp
@@ -198,3 +230,11 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
+
+
+//IMPORTANTE DESTACAR
+// 1. Conjunto de candidatos -> construir_candidatos(...)
+// 2. Función de selección -> seleccionar_ciudad_mas_cercana_al_subtour(...)
+// 3. Función de factibilidad -> es_factible_insertar(...)
+// 4. Función objetivo -> funcion_objetivo(...)
+// 5. Función de solución -> es_solucion_completa(...)
