@@ -62,15 +62,18 @@ int seleccionar_ciudad_mas_cercana_al_subtour(
 
 //Comprueba si una ciudad puede insertarse
 bool es_factible_insertar(int ciudad, const vector<bool>& en_tour) {
-    return !en_tour[ciudad];
+    return ciudad >= 0 && ciudad < (int)en_tour.size() && !en_tour[ciudad];
 }
 //COSTE -> O(1)
 
 
 
 //Dada una ciudad k ya elegida, decide entre qué dos ciudades consecutivas del subtour conviene insertarla para que el aumento del coste sea mínimo
-//resuelve esta ecuación ∆i,j = d(i, k) + d(k, j) − d(i, j).
-int mejor_posicion_de_insercion(const vector<int>& subtour, int ciudad_k, const vector<vector<int>>& dist) {
+int mejor_posicion_de_insercion(
+    const vector<int>& subtour,
+    int ciudad_k,
+    const vector<vector<int>>& dist
+) {
     int mejor_posicion = 1;
     int mejor_incremento = INF;
     int m = (int)subtour.size();
@@ -113,7 +116,7 @@ bool es_solucion_completa(const vector<int>& subtour, int total_ciudades) {
 
 //Construye un tour del TSP con la heurística de inserción más económica: empieza con 3 ciudades aleatorias y va añadiendo, en cada paso,
 //la ciudad no visitada más cercana al subtour en la posición que menos aumenta el coste.
-pair<vector<int>, int> insercion_economica(const vector<vector<int>>& dist) {
+pair<vector<int>, int> heuristic_economic_insertion(const vector<vector<int>>& dist) {
     int n = (int)dist.size();
     vector<int> subtour;
 
@@ -128,7 +131,7 @@ pair<vector<int>, int> insercion_economica(const vector<vector<int>>& dist) {
         return {subtour, funcion_objetivo(subtour, dist)};
     }
 
-    // Subtour inicial aleatorio de 3 ciudades distintas
+    // Subtour inicial aleatorio de 3 ciudades distintas usando rand().
     int c1 = rand() % n;
     int c2 = rand() % n;
     while (c2 == c1) {
@@ -153,10 +156,12 @@ pair<vector<int>, int> insercion_economica(const vector<vector<int>>& dist) {
         int ciudad_k = seleccionar_ciudad_mas_cercana_al_subtour(subtour, candidatos, dist);
 
         if (!es_factible_insertar(ciudad_k, en_tour)) {
-            int pos = mejor_posicion_de_insercion(subtour, ciudad_k, dist);
-            subtour.insert(subtour.begin() + pos, ciudad_k);
-            en_tour[ciudad_k] = true;
+            break;  // caso de seguridad
         }
+
+        int pos = mejor_posicion_de_insercion(subtour, ciudad_k, dist);
+        subtour.insert(subtour.begin() + pos, ciudad_k);
+        en_tour[ciudad_k] = true;
     }
 
     int coste = funcion_objetivo(subtour, dist);
@@ -174,30 +179,30 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
 
     string file_path = argv[1];
     pair<vector<Node>, vector<int>> parsed_data = parse_tsplib_file(file_path);
-    vector<Node> nodos = parsed_data.first;
-    vector<int> optimo = parsed_data.second;
+    vector<Node> nodes = parsed_data.first;
+    vector<int> optimal_tour = parsed_data.second;
 
-    if (nodos.empty()) {
+    if (nodes.empty()) {
         cout << "No se han cargado nodos. Revisa la ruta y el formato del fichero." << endl;
         return 1;
     }
 
-    vector<vector<int>> dist_matriz = build_distance_matrix(nodos);
-    cout << "Instancia cargada con " << dist_matriz.size() << " ciudades." << endl;
+    vector<vector<int>> dist_matrix = build_distance_matrix(nodes);
+    cout << "Instancia cargada con " << dist_matrix.size() << " ciudades." << endl;
 
     string instance_name = get_instance_name(file_path);
 
-    if (!optimo.empty()) {
-        int coste_optimo = compute_tour_cost(optimo, dist_matriz);
-        cout << "Coste optimo (fichero): " << coste_optimo << endl;
+    if (!optimal_tour.empty()) {
+        int optimal_cost = compute_tour_cost(optimal_tour, dist_matrix);
+        cout << "Coste optimo (fichero): " << optimal_cost << endl;
 
-        string png = instance_name + "_optimal_tour.png";
-        if (export_tour_to_png(nodos, optimo, png, "Optimal Tour", "#1f77b4")) {
-            cout << "PNG del tour optimo guardado en " << png << endl;
+        string optimal_png = instance_name + "_optimal_tour.png";
+        if (export_tour_to_png(nodes, optimal_tour, optimal_png, "Optimal Tour", "#1f77b4")) {
+            cout << "PNG del tour optimo guardado en " << optimal_png << endl;
         } else {
             cout << "No se pudo generar el PNG del tour optimo (requiere gnuplot)." << endl;
         }
@@ -205,19 +210,19 @@ int main(int argc, char* argv[]) {
         cout << "El fichero no incluye tour optimo." << endl;
     }
 
-    pair<vector<int>, int> resultado = insercion_economica(dist_matriz);
-    cout << "Coste insercion mas economica: " << resultado.second << endl;
+    pair<vector<int>, int> result = heuristic_economic_insertion(dist_matrix);
+    cout << "Coste insercion mas economica: " << result.second << endl;
 
-    if (!optimo.empty()) {
-        int optimal_cost = compute_tour_cost(optimo, dist_matriz);
-        double ratio = 100.0 * static_cast<double>(resultado.second) / static_cast<double>(optimal_cost);
+    if (!optimal_tour.empty()) {
+        int optimal_cost = compute_tour_cost(optimal_tour, dist_matrix);
+        double ratio = 100.0 * static_cast<double>(result.second) / static_cast<double>(optimal_cost);
         cout << "Relacion respecto al optimo: " << ratio << "%" << endl;
     }
 
-    if (!resultado.first.empty()) {
-        string png2 = instance_name + "_insercion_economica_tour.png";
-        if (export_tour_to_png(nodos, resultado.first, png2, "Economic Insertion Tour", "#d62728")) {
-            cout << "PNG del tour calculado guardado en " << png2 << endl;
+    if (!result.first.empty()) {
+        string out_png = instance_name + "_insercion_economica_tour.png";
+        if (export_tour_to_png(nodes, result.first, out_png, "Economic Insertion Tour", "#d62728")) {
+            cout << "PNG del tour calculado guardado en " << out_png << endl;
         } else {
             cout << "No se pudo generar el PNG del tour calculado (requiere gnuplot)." << endl;
         }
