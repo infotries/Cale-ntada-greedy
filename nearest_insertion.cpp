@@ -94,7 +94,6 @@ pair<vector<int>, int> heuristic_nearest_insertion(
         return {tour, funcion_objetivo(tour, distance_matrix)};
     }
 
-    // Subtour inicial aleatorio de 3 ciudades distintas
     int c1 = rand() % n;
     int c2 = rand() % n;
     while (c2 == c1) {
@@ -113,12 +112,11 @@ pair<vector<int>, int> heuristic_nearest_insertion(
     en_tour[tour[1]] = true;
     en_tour[tour[2]] = true;
 
-    // Construccion greedy del tour.
     while (!es_solucion_completa(tour, n)) {
         vector<int> candidatos = construir_candidatos(n, en_tour);
         int ciudad_k = seleccionar_ciudad_mas_cercana_al_subtour(tour, candidatos, distance_matrix);
 
-        if (!es_factible_insertar(ciudad_k, en_tour)) {
+        if (es_factible_insertar(ciudad_k, en_tour)) {
             int pos = mejor_posicion_de_insercion(tour, ciudad_k, distance_matrix);
             tour.insert(tour.begin() + pos, ciudad_k);
             en_tour[ciudad_k] = true;
