@@ -53,7 +53,7 @@ bool es_factible_insertar(int ciudad, const vector<bool>& en_tour) {
 int mejor_posicion_de_insercion(const vector<int>& subtour, int ciudad_k, const vector<vector<int>>& dist) {
     int mejor_posicion = 1;
     int mejor_incremento = tope;
-    int m = (int)subtour.size();
+    int m = subtour.size();
 
     for (int i = 0; i < m; ++i) {
         int j = (i + 1) % m;
@@ -63,7 +63,7 @@ int mejor_posicion_de_insercion(const vector<int>& subtour, int ciudad_k, const 
 
         if (incremento < mejor_incremento) {
             mejor_incremento = incremento;
-            mejor_posicion = i + 1;  // insertar tras i
+            mejor_posicion = i + 1; 
         }
     }
 
@@ -75,12 +75,12 @@ int funcion_objetivo(const vector<int>& tour, const vector<vector<int>>& dist) {
 }
 
 bool es_solucion_completa(const vector<int>& subtour, int total_ciudades) {
-    return (int)subtour.size() == total_ciudades;
+    return subtour.size() == total_ciudades;
 }
 pair<vector<int>, int> heuristic_nearest_insertion(
     const vector<vector<int>>& distance_matrix
 ) {
-    int n = (int)distance_matrix.size();
+    int n = distance_matrix.size();
     vector<int> tour;
 
     if (n == 0) {
