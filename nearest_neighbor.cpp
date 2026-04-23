@@ -6,7 +6,10 @@
 #include <vector>
 #include "data_loader.h"
 #include "plot_tour.h"
+#include <ctime>
 
+
+//Compilar con g++ nearest_neighbor.cpp data_loader.cpp plot_tour.cpp -O3 -o vecino_mas_cercano
 using namespace std;
 
 // Función para calcular la ciudad más cercana
@@ -55,6 +58,7 @@ pair<vector<int>, int>heuristic_nearest_neighbor(const vector<vector<int>> &matr
 }
 
 int main(int argc, char *argv[]) {
+  srand(time(NULL));
   // g++ nearest_neighbor.cpp data_loader.cpp plot_tour.cpp -o
   // nearest_neighbor.bin -O3 && ./nearest_neighbor.bin ./data/berlin52.tsp
   if (argc < 2) {
