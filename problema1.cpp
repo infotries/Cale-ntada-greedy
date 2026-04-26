@@ -76,8 +76,25 @@ vector<pair<int,int>> greedy(vector<tarea> &tareas, vector<servidor> &servidores
 }
 
 int main(){
-    vector<tarea> tareas = {{1,12}, {2,5}, {3,8}, {4,20}, {5,7}, {6,15}};
-    vector<servidor> servidores = {{1,10}, {2,6}, {3,18}, {4,14}, {5,5}, {6,22}};
+    vector<tarea> tareas;
+    vector<servidor> servidores;
+    int tam, r, c;
+
+    cout << "Introduce el número de tareas/servidores: ";
+    cin >> tam;
+
+    for(int i = 0; i < tam; i++){
+        cout << "Introduce la capacidad de cálculo mínima de la tarea " << i+1 << ": ";
+        cin >> r;
+        tareas.push_back({i+1, r});
+    }
+
+    for(int i = 0; i < tam; i++){
+        cout << "Introduce la capacidad de procesamiento del servidor " << i+1 << ": ";
+        cin >> c;
+        servidores.push_back({i+1, c});
+    }
+
     vector<pair<int,int>> solucion = greedy(tareas, servidores);
 
     cout << "Asignaciones:" << endl;
