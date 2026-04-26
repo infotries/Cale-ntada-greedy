@@ -10,9 +10,10 @@ using namespace std;
 
 const int tope = 1000000000;
 
-vector<int> construir_candidatos(int n, const vector<bool>& en_tour) {
+vector<int> construir_candidatos(int n, const vector<bool>& en_tour){
     vector<int> candidatos;
-    for (int i = 0; i < n; ++i) {
+
+    for(int i = 0; i < n; i++){
         if (!en_tour[i]) {
             candidatos.push_back(i);
         }
@@ -20,27 +21,22 @@ vector<int> construir_candidatos(int n, const vector<bool>& en_tour) {
     return candidatos;
 }
 
-int seleccionar_ciudad_mas_cercana_al_subtour(
-    const vector<int>& subtour,
-    const vector<int>& candidatos,
-    const vector<vector<int>>& dist) {
+int seleccionar_ciudad_mas_cercana_al_subtour(const vector<int>& subtour, const vector<int>& candidatos, const vector<vector<int>>& dist){
     int mejor_ciudad = -1;
     int mejor_distancia = tope;
 
-    for (int k : candidatos) {
+    for(int k : candidatos){
         int distancia_a_subtour = tope;
-        for (int c : subtour) {
-            if (dist[k][c] < distancia_a_subtour) {
+        for(int c : subtour){
+            if(dist[k][c] < distancia_a_subtour){
                 distancia_a_subtour = dist[k][c];
             }
         }
-
-        if (distancia_a_subtour < mejor_distancia) {
+        if(distancia_a_subtour < mejor_distancia){
             mejor_distancia = distancia_a_subtour;
             mejor_ciudad = k;
         }
     }
-
     return mejor_ciudad;
 }
 
@@ -54,40 +50,37 @@ int mejor_posicion_de_insercion(const vector<int>& subtour, int ciudad_k, const 
     int mejor_incremento = tope;
     int m = subtour.size();
 
-    for (int i = 0; i < m; ++i) {
+    for(int i = 0; i < m; i++){
         int j = (i + 1) % m;
         int ciudad_i = subtour[i];
         int ciudad_j = subtour[j];
         int incremento = dist[ciudad_i][ciudad_k] + dist[ciudad_k][ciudad_j] - dist[ciudad_i][ciudad_j];
 
-        if (incremento < mejor_incremento) {
+        if(incremento < mejor_incremento){
             mejor_incremento = incremento;
             mejor_posicion = i + 1; 
         }
     }
-
     return mejor_posicion;
 }
 
-int funcion_objetivo(const vector<int>& tour, const vector<vector<int>>& dist) {
+int funcion_objetivo(const vector<int>& tour, const vector<vector<int>>& dist){
     return compute_tour_cost(tour, dist);
 }
 
-bool es_solucion_completa(const vector<int>& subtour, int total_ciudades) {
+bool es_solucion_completa(const vector<int>& subtour, int total_ciudades){
     return subtour.size() == total_ciudades;
 }
-pair<vector<int>, int> heuristic_nearest_insertion(
-    const vector<vector<int>>& distance_matrix
-) {
+pair<vector<int>, int> heuristic_nearest_insertion(const vector<vector<int>>& distance_matrix){
     int n = distance_matrix.size();
     vector<int> tour;
 
-    if (n == 0) {
+    if(n == 0){
         return {tour, 0};
     }
 
-    if (n <= 3) {
-        for (int i = 0; i < n; ++i) {
+    if(n <= 3){
+        for(int i = 0; i < n; ++i){
             tour.push_back(i);
         }
         return {tour, funcion_objetivo(tour, distance_matrix)};
@@ -111,17 +104,16 @@ pair<vector<int>, int> heuristic_nearest_insertion(
     en_tour[tour[1]] = true;
     en_tour[tour[2]] = true;
 
-    while (!es_solucion_completa(tour, n)) {
+    while(!es_solucion_completa(tour, n)){
         vector<int> candidatos = construir_candidatos(n, en_tour);
         int ciudad_k = seleccionar_ciudad_mas_cercana_al_subtour(tour, candidatos, distance_matrix);
 
-        if (es_factible_insertar(ciudad_k, en_tour)) {
+        if(es_factible_insertar(ciudad_k, en_tour)){
             int pos = mejor_posicion_de_insercion(tour, ciudad_k, distance_matrix);
             tour.insert(tour.begin() + pos, ciudad_k);
             en_tour[ciudad_k] = true;
         }
     }
-
     int coste = funcion_objetivo(tour, distance_matrix);
     return {tour, coste};
 }
