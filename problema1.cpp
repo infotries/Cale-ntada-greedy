@@ -84,13 +84,13 @@ int main(){
     cin >> tam;
 
     for(int i = 0; i < tam; i++){
-        cout << endl << "Introduce la capacidad de cálculo mínima de la tarea " << i+1 << ": ";
+        cout << "Introduce la capacidad de cálculo mínima de la tarea " << i+1 << ": ";
         cin >> r;
         tareas.push_back({i+1, r});
     }
 
     for(int i = 0; i < tam; i++){
-        cout << endl << "Introduce la capacidad de procesamiento del servidor" << i+1 << ": ";
+        cout << "Introduce la capacidad de procesamiento del servidor " << i+1 << ": ";
         cin >> c;
         servidores.push_back({i+1, c});
     }
